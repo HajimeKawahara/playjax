@@ -71,18 +71,20 @@ class MLP(nn.Module):
 
 
 @jax.jit
-def loss_fn(params, x, y):
+def loss_fn(state, params, x, y):
     """ loss function
     
     Args:
-        params (_type_): parameters of the model
-        x (_type_): x
-        y (_type_): y
+        state: state of the model
+        params: parameters of the model
+        x (jnp.array): x
+        y (jnp.array): y
 
     Returns:
         L2 loss
     """
-    y_pred = model.apply(params, x)
+    
+    y_pred = state.apply_fn(params, x)
     return jnp.mean((y - y_pred) ** 2)
 
 
@@ -98,7 +100,7 @@ def update_fn(state, x, y):
     Returns:
         updated state of the model
     """
-    loss, grad = jax.value_and_grad(loss_fn)(state.params, x, y)
+    loss, grad = jax.value_and_grad(loss_fn, argnums=1)(state, state.params, x, y)
     updates, new_opt_state = state.tx.update(grad, state.opt_state)
     new_params = optax.apply_updates(state.params, updates)
     return state.replace(params=new_params, opt_state=new_opt_state), loss
