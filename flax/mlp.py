@@ -111,6 +111,9 @@ if __name__ == "__main__":
     y = y.reshape(-1, 1)
     x = x.reshape(-1, 1)
     # plot_sin_curve(x[:, 0], y[:, 0])
+    
+    #(N, nparam)
+    print(x.shape, y.shape)
 
     nfeatures = 32
     model = MLP(features=nfeatures)
